@@ -37,6 +37,7 @@ export default function App(){
     <div className="app">
       <Header/>
       {status==='loading' && <Loader/>}
+
     </div>
   )
 }
