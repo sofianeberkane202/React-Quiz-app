@@ -8,8 +8,30 @@ function reducer(state, action){
     case 'loading': return {...state, status: 'loading'};
     case 'ready': return {...state, status: "ready", questions: action.payload.Data};
     case 'active': return {...state, status: 'active'};
+    case 'answers': 
+    const newPoints= 
+    action.answer === state.questions[state.index].correctOption ?
+    state.pointsEarned + state.questions[state.index].points :
+    state.pointsEarned;
     
-    default: new Error('')
+    return {
+      ...state,
+      status:'answered',
+      choosenAnswer: action.answer,
+      pointsEarned: newPoints,
+      };
+    
+    case 'nextQuestion': 
+      const nextQuestion = state.index + 1;
+      return {...state,
+        status: 'active' , 
+        index: nextQuestion,
+        choosenAnswer: null,
+      };
+
+    case 'finish': return{...state, status: 'finish'};
+    
+    default: new Error('There is no kind of type like this one!!!')
   }
 }
 
@@ -17,12 +39,14 @@ const initialState= {
   status: 'loading',
   questions: [],
   index: 0,
+  choosenAnswer: null,
+  pointsEarned: 0,
 }
 
 export default function App(){
 
-  const [{status, questions, index}, dispatch]= useReducer(reducer,initialState);
-  // console.log(status, questions);
+  const [{status, questions, index,choosenAnswer,pointsEarned}, dispatch]= useReducer(reducer,initialState);
+  
 
   useEffect(function(){
     async function fetchQuestionsData(){
@@ -36,7 +60,7 @@ export default function App(){
     }
 
 
-    status=== 'loading' && fetchQuestionsData();
+    status==='loading' && fetchQuestionsData();
   },[status])
 
   return (
@@ -56,7 +80,36 @@ export default function App(){
         {status==='active' && 
         <Question
         question={questions[index]}
+        dispatch={dispatch}
         />}
+
+        {status==='answered' &&
+        <>
+          <Question
+          question={questions[index]}
+          dispatch={dispatch}
+          answerChoosen={choosenAnswer}
+          />
+
+          {index + 1< questions.length ?
+          <button 
+          className="btn btn-ui"
+          onClick={() => dispatch({type: "nextQuestion"})}
+          >
+            Next
+          </button>
+          :
+          <button 
+          className="btn btn-ui"
+          onClick={() => dispatch({type: "finish"})}
+          >
+            Finish
+          </button>
+
+          }
+        </>
+        }
+        
       </main>
 
       
