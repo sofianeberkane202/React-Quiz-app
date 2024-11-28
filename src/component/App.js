@@ -1,7 +1,12 @@
 import { useEffect, useReducer } from "react"
 
-import { fetchData } from "./helper";
+import { fetchData } from "../helper";
 import { Question } from "./Question";
+import { Header } from "./Header";
+import { Loader } from "./Loader";
+import { ProgressBar } from "./ProgressBar";
+import { Result } from "./Result";
+import { Error } from "./Error";
 
 function reducer(state, action){
   switch(action.type){
@@ -35,6 +40,8 @@ function reducer(state, action){
     index:0,
     answerChoosen:null, 
     };
+
+    case 'error': return {...state, status:'error'}
     
     default: new Error('There is no kind of type like this one!!!')
   }
@@ -60,7 +67,7 @@ export default function App(){
         dispatch({type: "ready", payload: {Data: data}});
         
       } catch (error) {
-        
+        dispatch({type: "error"});
       }
     }
 
@@ -137,6 +144,8 @@ export default function App(){
         pointsEarned={pointsEarned}
         points={questions.map(q => q.points)}
         /> }
+
+        {status==='error' && <Error/>}
         
       </main>
 
@@ -146,42 +155,3 @@ export default function App(){
   )
 }
 
-function Header(){
-  return(
-    <div className="app-header">
-        <img src={`${process.env.PUBLIC_URL}/logo512.png`} alt="logo"/>
-        <h1>the react quiz</h1>
-      </div>
-  )
-}
-
-function Loader(){
-  return(
-    <div className="loader-container">
-      <p className="loader"></p>
-    </div>
-  )
-}
-
-function ProgressBar({points, numQuestions,currentQuestion,pointsEarn}){
-  const totalPoints = points.reduce((acc,point) => acc + point,0);
-  return (
-    <>
-      <progress value={currentQuestion}  max={numQuestions}/>
-      <div className="progress">
-        <p>Question {currentQuestion} / {numQuestions}</p>
-        <p>Points {pointsEarn} / {totalPoints}</p>
-      </div>
-    </>
-  )
-}
-
-
-
-function Result({pointsEarned,points}){
-  const totalPoints = points.reduce((acc,point) => acc + point,0);
-  const percentage = Math.ceil(pointsEarned * 100 / totalPoints)
-  return (
-    <p className="result">{`You scored (${percentage}%)`} </p>
-  )
-}
