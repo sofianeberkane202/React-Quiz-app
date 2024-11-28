@@ -66,7 +66,7 @@ export default function App(){
   return (
     <div className="app">
       <Header/>
-      <main>
+      <main className="main">
         {status==='loading' && <Loader/>}
         {status==='ready' && 
         
@@ -76,12 +76,25 @@ export default function App(){
         >
           Start Quiz
         </button>}
+
+        {(status==='active' || status==='answered') &&
+          <ProgressBar
+          numQuestions={questions.length}
+          points={questions.map(q => q.points)}
+          currentQuestion={index + 1}
+          pointsEarn={pointsEarned}
+          />
+        }
         
         {status==='active' && 
-        <Question
-        question={questions[index]}
-        dispatch={dispatch}
-        />}
+        <>
+          <Question
+          question={questions[index]}
+          dispatch={dispatch}
+          />
+        </>
+        
+        }
 
         {status==='answered' &&
         <>
@@ -132,6 +145,19 @@ function Loader(){
     <div className="loader-container">
       <p className="loader"></p>
     </div>
+  )
+}
+
+function ProgressBar({points, numQuestions,currentQuestion,pointsEarn}){
+  const totalPoints = points.reduce((acc,point) => acc + point,0);
+  return (
+    <>
+      <progress value={currentQuestion}  max={numQuestions}/>
+      <div className="progress">
+        <p>Question {currentQuestion} / {numQuestions}</p>
+        <p>Points {pointsEarn} / {totalPoints}</p>
+      </div>
+    </>
   )
 }
 
