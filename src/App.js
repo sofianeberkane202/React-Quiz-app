@@ -29,7 +29,12 @@ function reducer(state, action){
         choosenAnswer: null,
       };
 
-    case 'finish': return{...state, status: 'finish'};
+    case 'finish': 
+    return{...state,
+    status: 'finish',
+    index:0,
+    answerChoosen:null, 
+    };
     
     default: new Error('There is no kind of type like this one!!!')
   }
@@ -70,12 +75,15 @@ export default function App(){
         {status==='loading' && <Loader/>}
         {status==='ready' && 
         
-        <button 
-        className="btn btn-ui"
-        onClick={() => dispatch({type: 'active'})}
-        >
-          Start Quiz
-        </button>}
+        <div className="start">
+          <button 
+          className="btn btn-ui"
+          onClick={() => dispatch({type: 'active'})}
+          >
+            Start Quiz
+          </button>
+        </div>
+        }
 
         {(status==='active' || status==='answered') &&
           <ProgressBar
@@ -122,6 +130,13 @@ export default function App(){
           }
         </>
         }
+
+        {status === 'finish' && 
+        <Result
+        numQuestions={questions.length}
+        pointsEarned={pointsEarned}
+        points={questions.map(q => q.points)}
+        /> }
         
       </main>
 
@@ -162,3 +177,11 @@ function ProgressBar({points, numQuestions,currentQuestion,pointsEarn}){
 }
 
 
+
+function Result({pointsEarned,points}){
+  const totalPoints = points.reduce((acc,point) => acc + point,0);
+  const percentage = Math.ceil(pointsEarned * 100 / totalPoints)
+  return (
+    <p className="result">{`You scored (${percentage}%)`} </p>
+  )
+}
